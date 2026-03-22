@@ -1,0 +1,127 @@
+---
+title: Quickstart
+description: Scan your codebase for technical debt in 30 seconds.
+---
+
+## 1. Scan Your Codebase
+
+```bash
+npx todo-harvest scan
+```
+
+Scans the current directory recursively. Shows all `TODO`, `FIXME`, `HACK`, `BUG`, `NOTE`, and `DEPRECATED` comments with file locations and line numbers.
+
+## 2. Scan a Specific Path
+
+```bash
+npx todo-harvest scan ./src
+npx todo-harvest scan ./src ./lib ./test
+```
+
+## 3. Choose Output Format
+
+**Terminal (default):** Colored, grouped by type. Best for reading in the moment.
+
+```bash
+npx todo-harvest scan --format terminal
+```
+
+**Markdown:** For reports, READMEs, or sprint planning docs.
+
+```bash
+npx todo-harvest scan --format markdown > tech-debt.md
+```
+
+**JSON:** For automation, dashboards, and Jira integrations.
+
+```bash
+npx todo-harvest scan --format json
+npx todo-harvest scan --format json | jq '.items | length'
+```
+
+**CSV:** For spreadsheets and tracking in project management tools.
+
+```bash
+npx todo-harvest scan --format csv > todo-report.csv
+```
+
+## 4. Add Git Blame Attribution
+
+See *who* wrote each TODO, *when*, and from which commit:
+
+```bash
+npx todo-harvest scan --blame
+```
+
+Output:
+```
+src/auth/middleware.js:44
+  Author: Jane Smith <jane@company.com>
+  Commit: a3f1c22 | 2026-02-15
+  TODO: Handle anonymous user edge case
+```
+
+## 5. Set Thresholds for CI
+
+The most powerful feature — fail your build if debt exceeds policy:
+
+```bash
+# Fail if more than 20 TODOs
+npx todo-harvest scan --fail-over 20
+
+# Fail if ANY FIXME comments exist
+npx todo-harvest scan --fail-on-fixme
+
+# Fail if more than 5 HACK comments
+npx todo-harvest scan --fail-on-hack-over 5
+```
+
+Exit code 0 = within limits. Exit code 1 = threshold exceeded.
+
+## 6. Add to GitHub Actions
+
+```yaml
+name: Technical Debt Check
+on: [push, pull_request]
+
+jobs:
+  debt-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Scan for technical debt
+        run: npx todo-harvest scan ./src --fail-over 25 --fail-on-fixme
+```
+
+## 7. Filter by Type
+
+```bash
+# Only FIXME and BUG
+npx todo-harvest scan --types FIXME,BUG
+
+# Only TODO
+npx todo-harvest scan --types TODO
+
+# All types (default)
+npx todo-harvest scan --types ALL
+```
+
+## Options Reference
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `--format <type>` | `terminal` | Output: `terminal`, `markdown`, `json`, `csv` |
+| `--types <list>` | `ALL` | Comma-separated types to scan for |
+| `--blame` | false | Include git blame attribution |
+| `--fail-over <n>` | off | Exit 1 if total items exceed n |
+| `--fail-on-fixme` | false | Exit 1 if any FIXME found |
+| `--fail-on-hack-over <n>` | off | Exit 1 if HACK count exceeds n |
+| `--output <file>` | stdout | Write to file |
+| `--ignore <patterns>` | none | Glob patterns to exclude |
+| `--no-gitignore` | false | Don't respect .gitignore |
+
+## Next Steps
+
+- [CI Enforcement](/guides/ci-enforcement) — full guide to blocking debt accumulation
+- [GitHub Actions](/integrations/github-actions) — ready-made workflow
+- [Team Workflow](/guides/team-workflow) — using todo-harvest across a team
