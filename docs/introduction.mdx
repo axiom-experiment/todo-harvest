@@ -1,0 +1,103 @@
+---
+title: Introduction
+description: Harvest TODO/FIXME/HACK/BUG comments from your codebase — with git blame, multi-format output, and CI threshold enforcement.
+---
+
+## What is todo-harvest?
+
+`todo-harvest` scans your codebase for technical debt markers (`TODO`, `FIXME`, `HACK`, `BUG`, `NOTE`, `DEPRECATED`) and produces structured reports showing what needs attention, who wrote it, and when.
+
+```bash
+npx todo-harvest scan ./src
+```
+
+It's the tool that finally makes your forgotten `// TODO: fix this before launch` comments visible — and actionable.
+
+<CardGroup cols={2}>
+  <Card title="Git Blame Integration" icon="git-branch" color="#ea580c">
+    Every TODO is attributed to the author who wrote it, with commit hash and date. No more mystery debt.
+  </Card>
+  <Card title="CI Enforcement" icon="shield-check" color="#ea580c">
+    Set threshold limits. Fail builds when technical debt exceeds your policy. Keep debt from accumulating silently.
+  </Card>
+  <Card title="Multi-Format Output" icon="file-export" color="#ea580c">
+    Terminal, JSON, Markdown, and CSV. Pipe into Jira, dashboards, or reports.
+  </Card>
+  <Card title="Language Aware" icon="code" color="#ea580c">
+    Understands comment syntax across 20+ languages including JS/TS, Python, Go, Rust, Ruby, and more.
+  </Card>
+</CardGroup>
+
+## The Problem
+
+Every codebase accumulates comments like:
+
+```javascript
+// TODO: handle edge case when user is anonymous
+// FIXME: this breaks when API rate limit is hit
+// HACK: temporary workaround for payment bug
+// NOTE: remove this before v2.0 launch
+```
+
+These comments are invisible in code review, forgotten in sprints, and never surface until production incidents. `todo-harvest` makes them a first-class artifact.
+
+## Sample Output
+
+```bash
+$ npx todo-harvest scan ./src --format terminal
+
+🌾 todo-harvest — Technical Debt Scanner
+Scanned: ./src (247 files, 18,432 lines)
+
+TODO (12 items)
+───────────────────────────────────────────────────────
+src/auth/middleware.js:44    │ Jane Smith    │ 2026-02-15
+Handle anonymous user edge case in rate limiting
+
+src/payments/processor.js:112 │ Alex Chen   │ 2026-01-08
+Retry logic for failed webhook delivery
+
+FIXME (4 items)
+───────────────────────────────────────────────────────
+src/api/users.js:88         │ Jane Smith    │ 2026-03-01
+Breaks when user has no email (OAuth case)
+
+Summary: 16 items across 9 files
+  TODO: 12  |  FIXME: 4  |  HACK: 0  |  BUG: 0
+```
+
+## CI Enforcement
+
+The most powerful feature: fail your build when technical debt accumulates beyond policy.
+
+```yaml
+# .github/workflows/debt-check.yml
+- name: Check technical debt
+  run: npx todo-harvest scan ./src --fail-over 20
+```
+
+```bash
+# Exit 1 if more than 20 TODOs
+npx todo-harvest scan --fail-over 20
+
+# Exit 1 if any FIXME comments exist
+npx todo-harvest scan --fail-on-fixme
+```
+
+## Quick Start
+
+```bash
+# Scan current directory
+npx todo-harvest scan
+
+# Scan specific path, JSON output
+npx todo-harvest scan ./src --format json
+
+# With git blame attribution
+npx todo-harvest scan ./src --blame
+
+# CI enforcement: fail if over limit
+npx todo-harvest scan ./src --fail-over 15
+```
+
+77 tests. Zero dependencies. MIT licensed.
